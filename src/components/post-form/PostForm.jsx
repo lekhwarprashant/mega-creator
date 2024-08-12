@@ -20,22 +20,24 @@ function PostForm({post}){
 
     const submit = async (data)=> {
         if(post){
-            const file = data.image[0]? appwriteService.uploadFile(data.image[0]) : null ; 
+            const file = data.image[0]? await appwriteService.uploadFile(data.image[0]) : null ; 
 
             if(file){
-                appwriteService.deleteFile(post.feturedImage);
+                appwriteService.deleteFile(post.featuredImage);
             }
 
-            const dbPost = await appwriteService.updatePost(data.$id, {...data, featuredImage: file? file.$id : undefined})
+            const dbPost = await appwriteService.updatePost(post.$id, {...data, featuredImage: file? file.$id : undefined});
 
-            if(dbPost)
-                navigate(`post/${dbPost.$id}`)
+            if(dbPost){
+                navigate(`post/${dbPost.$id}`);
+            }
         }
         else{
-            const file = appwriteService.uploadFile(data.image[0]); // update it to conditionally check for the data.image[0] exists then do this
+            const file = await appwriteService.uploadFile(data.image[0]); // update it to conditionally check for the data.image[0] exists then do this
 
             if(file){
-                data.featuredImage = file.$id ;  //also by: storing file.$id in variable and then doing this assignment
+                const fileId = file.$id;
+                data.featuredImage = fileId;   //also by: storing file.$id in variable and then doing this assignment
                 const dbPost = await appwriteService.createPost({
                     ...data, 
                     userId: userData.$id});
@@ -46,26 +48,26 @@ function PostForm({post}){
         }
     }
 
-    const slugTransform = (value) => {
-        if(value && typeof value == string)
+    const slugTransform = useCallback((value) => {
+        if (value && typeof value === "string")
             return value
-            .trim()
-            .replace(/^[a-zA-Z\d\s]+/g, '-')
-            .replace(/\s/g, '-');
-        return '';
-    }
+                .trim()
+                .toLowerCase()
+                .replace(/[^a-zA-Z\d\s]+/g, "-")
+                .replace(/\s/g, "-");
+
+        return "";
+    }, []);
     
     React.useEffect(()=>{
         const subscription = watch((value, {name})=>{
             if(name === 'title'){
-                setValue('slug', slugTransform(value.title, {shouldValidate: true}))
+                setValue('slug', slugTransform(value.title), {shouldValidate: true});
             }
-        }) 
+        }); 
         
-        return ()=>{
-            subscription.unsubscribe()
-        }
-    }, [watch, slugTransform, setValue])
+        return ()=> subscription.unsubscribe();
+    }, [watch, slugTransform, setValue]);
     
     return (
         <form onSubmit={handleSubmit(submit)} className="flex flex-wrap">
