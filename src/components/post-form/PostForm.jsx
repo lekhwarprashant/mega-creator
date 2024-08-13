@@ -9,7 +9,7 @@ function PostForm({post}){
     const {register, handleSubmit, watch, setValue, control, getValues} = useForm({
         defaultValues: {
             title: post ?.title || '',
-            slug: post ?.slug || '',
+            slug: post ?.$id || '',
             content: post?.content || '',
             status: post?.status || 'active'
         }
@@ -23,13 +23,13 @@ function PostForm({post}){
             const file = data.image[0]? await appwriteService.uploadFile(data.image[0]) : null ; 
 
             if(file){
-                appwriteService.deleteFile(post.featuredImage);
+                await appwriteService.deleteFile(post.featuredImage);
             }
 
             const dbPost = await appwriteService.updatePost(post.$id, {...data, featuredImage: file? file.$id : undefined});
 
             if(dbPost){
-                navigate(`post/${dbPost.$id}`);
+                navigate(`../../post/${dbPost.$id}`);
             }
         }
         else{
@@ -42,8 +42,9 @@ function PostForm({post}){
                     ...data, 
                     userId: userData.$id});
 
-                if(dbPost)
-                    navigate(`post/${dbPost.$id}`);
+                if(dbPost){
+                    navigate(`/post/${dbPost.$id}`);
+                }
             }
         }
     }
@@ -66,7 +67,7 @@ function PostForm({post}){
             }
         }); 
         
-        return ()=> subscription.unsubscribe();
+        return ()=>{ subscription.unsubscribe();}
     }, [watch, slugTransform, setValue]);
     
     return (
@@ -75,7 +76,7 @@ function PostForm({post}){
                 <Input
                     label="Title :"
                     placeholder="Title"
-                    className="mb-4"
+                    className="mb-4 required"
                     {...register("title", { required: true })}
                 />
                 <Input

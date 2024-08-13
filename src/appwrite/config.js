@@ -24,7 +24,7 @@ export class Service{
             // slug is <DOCUMENT_ID>
             
         } catch (error) {
-            console.log("Appwrite service :: getCurrentUser :: error",error)
+            console.log("Appwrite service :: createPost :: error",error)
         }
     }
 
@@ -35,7 +35,7 @@ export class Service{
             })
             
         } catch (error) {
-            console.log("Appwrite service :: getCurrentUser :: error",error)
+            console.log("Appwrite service :: updatePost :: error",error)
         }
     }
 
@@ -45,22 +45,21 @@ export class Service{
             return true;
             
         } catch (error) {
-            console.log("Appwrite service :: getCurrentUser :: error",error);
+            console.log("Appwrite service :: deletepost :: error",error);
             return false;
         }
     }
 
     async getPost(slug){
         try {
-            await this.databases.getPost(
+            return await this.databases.getDocument(
                 conf.appwriteDatabaseId, 
                 conf.appwriteCollectionId,
                 slug
             );
-            return true;
             
         } catch (error) {
-            console.log("Appwrite service :: getCurrentUser :: error",error);
+            console.log("Appwrite service :: getPost :: error",error);
             return false;
         }
     }
@@ -70,7 +69,7 @@ export class Service{
             return await this.databases.listDocuments(conf.appwriteDatabaseId, conf.appwriteCollectionId,queries)
             
         } catch (error) {
-            console.log("Appwrite service :: getCurrentUser :: error",error);
+            console.log("Appwrite service :: getPosts :: error",error);
             return false;
         }
     }
@@ -79,11 +78,11 @@ export class Service{
 
     async uploadFile(file){
         try {
-            return await this.bucket.createFile(conf.appwriteBucketId, ID.unique, file)
+            return await this.bucket.createFile(conf.appwriteBucketId, ID.unique(), file)
             //fileId will be returned
             
         } catch (error) {
-            console.log("Appwrite service :: getCurrentUser :: error",error);
+            console.log("Appwrite service :: uploadFile :: error",error);
             return false;
             
         }
@@ -94,7 +93,7 @@ export class Service{
             await this.bucket.deleteFile(conf.appwriteBucketId, fileId)
             return true;
         } catch (error) {
-            console.log("Appwrite service :: getCurrentUser :: error",error);
+            console.log("Appwrite service :: deleteFile :: error",error);
             return false;
             
         }
@@ -105,7 +104,7 @@ export class Service{
             return this.bucket.getFilePreview(conf.appwriteBucketId, fileId)
             
         } catch (error) {
-            console.log("Appwrite service :: getCurrentUser :: error",error);
+            console.log("Appwrite service :: getFilePreview :: error",error);
             return false;
             
         }

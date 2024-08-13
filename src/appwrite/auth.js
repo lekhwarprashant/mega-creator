@@ -1,4 +1,4 @@
-import conf from "../conf/conf";
+import conf from "../conf/conf.js";
 import {Client, Account, ID} from "appwrite";
 
 export class AuthService {
@@ -15,9 +15,10 @@ export class AuthService {
 
     async createAccount({email, password, name}){
         try{
-            const user = await this.account.create(ID.unique(), email, password, name);
+            const userAccount = await this.account.create(ID.unique(), email, password, name);
             if(userAccount){
                 //call the desired method you want after sucessful creation of user
+                return this.login({email, password});
             }
             else{
                 return userAccount;
@@ -45,6 +46,7 @@ export class AuthService {
         catch(error){
             console.log("Appwrite service:: getCurrentUser:: error",error)
         }
+        return null;
     }
 
     async logout(){
